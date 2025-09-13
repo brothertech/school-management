@@ -738,3 +738,18 @@ span.flatpickr-weekday,
   opacity: 0.8;
   cursor: grabbing; /* Changes the cursor to indicate dragging */
 }
+
+/* Exam mode styles - hide sidebar navigation */
+body.exam-mode .app-sidebar {
+  display: none !important;
+}
+
+body.exam-mode .app-header {
+  left: 0 !important;
+  width: 100% !important;
+}
+
+body.exam-mode main {
+  margin-left: 0 !important;
+  width: 100% !important;
+}

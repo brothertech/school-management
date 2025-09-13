@@ -1,11 +1,15 @@
-export default function ModuleLayout({
+import type { Metadata } from "next";
+import AdminLayout from "@/app/(admin)/layout";
+
+export const metadata: Metadata = {
+  title: "Attendance Management",
+  description: "Manage student and staff attendance records",
+};
+
+export default function AttendanceLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  return (
-    <div className="min-h-screen">
-      {children}
-    </div>
-  );
+  return <AdminLayout>{children}</AdminLayout>;
 }

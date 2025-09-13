@@ -23,7 +23,9 @@ import {
   DocsIcon,
   FolderIcon,
   PencilIcon,
+  ChatIcon,
 } from "../icons/index";
+import { BellIcon } from "lucide-react";
 
 
 type NavItem = {
@@ -37,22 +39,17 @@ const navItems: NavItem[] = [
   {
     icon: <GridIcon />,
     name: "Dashboard",
-    path: "/",
+    path: "/dashboard",
   },
   {
-    icon: <UserCircleIcon />,
+    icon: <GroupIcon />,
     name: "Students",
     path: "/students",
   },
   {
-    icon: <UserIcon />,
+    icon: <UserCircleIcon />,
     name: "Teachers",
     path: "/teachers",
-  },
-  {
-    icon: <GroupIcon />,
-    name: "Classes",
-    path: "/classes",
   },
   {
     icon: <FileIcon />,
@@ -65,9 +62,19 @@ const navItems: NavItem[] = [
     path: "/fees",
   },
   {
-    icon: <CalenderIcon />,
-    name: "Attendance",
-    path: "/attendance",
+    icon: <BellIcon/>,
+    name: "Announcements",
+    path: "/announcements",
+  },
+  {
+    icon: <ChatIcon />,
+    name: "Messaging",
+    path: "/messaging",
+  },
+  {
+    icon: <FileIcon />,
+    name: "Question Bank",
+    path: "/question-bank",
   },
 ];
 
@@ -320,22 +327,25 @@ const AppSidebar: React.FC = () => {
       >
         <Link href="/">
           {isExpanded || isHovered || isMobileOpen ? (
-            <>
-              <Image
+            <div className="flex items-center gap-2">
+             <div>
+               <Image
                 className="dark:hidden"
-                src="/images/logo/logo.svg"
+                src="/images/logo/logo.png"
                 alt="Logo"
-                width={150}
+                width={40}
                 height={40}
               />
               <Image
                 className="hidden dark:block"
-                src="/images/logo/logo-dark.svg"
+                src="/images/logo/logo.png"
                 alt="Logo"
-                width={150}
+                width={40}
                 height={40}
               />
-            </>
+             </div>
+             <h1 className="text-2xl font-bold">MySchool</h1>
+            </div>
           ) : (
             <Image
               src="/images/logo/logo-icon.svg"

@@ -1,6 +1,6 @@
 export interface Guardian {
   name: string;
-  relationship: 'father' | 'mother' | 'guardian' | 'other';
+  relationship: string; // Changed to string to be compatible with CreateStudentData
   contact: string;
   email?: string;
   occupation?: string;
@@ -63,7 +63,13 @@ export interface UpdateStudentData {
   contact?: string;
   email?: string;
   address?: string;
-  guardian?: Partial<Guardian>;
+  guardian?: {
+    name?: string;
+    relationship?: string;
+    contact?: string;
+    email?: string;
+    occupation?: string;
+  };
 }
 
 export interface PromoteStudentData {
@@ -71,4 +77,97 @@ export interface PromoteStudentData {
   newSection: string;
   newRollNumber: number;
   promotionDate: Date;
+}
+
+// Student Portal specific interfaces
+export interface StudentPortalData {
+  student: Student;
+  timetable: TimetableEntry[];
+  upcomingExams: UpcomingExam[];
+  examResults: ExamResult[];
+  attendanceSummary: StudentAttendanceSummary;
+  notifications: StudentNotification[];
+}
+
+export interface TimetableEntry {
+  id: string;
+  day: string;
+  period: number;
+  startTime: string;
+  endTime: string;
+  subject: string;
+  teacher: string;
+  room: string;
+}
+
+export interface UpcomingExam {
+  id: string;
+  subject: string;
+  date: Date;
+  time: string;
+  duration: string;
+  room: string;
+  syllabus: string;
+  importance: 'high' | 'medium' | 'low';
+}
+
+export interface StudentAttendanceSummary {
+  totalDays: number;
+  presentDays: number;
+  absentDays: number;
+  lateDays: number;
+  attendanceRate: number;
+  monthlyBreakdown: MonthlyAttendance[];
+  subjectWiseAttendance: SubjectAttendance[];
+}
+
+export interface MonthlyAttendance {
+  month: string;
+  year: number;
+  presentDays: number;
+  totalDays: number;
+  rate: number;
+}
+
+export interface SubjectAttendance {
+  subject: string;
+  totalClasses: number;
+  attendedClasses: number;
+  attendanceRate: number;
+}
+
+export interface StudentNotification {
+  id: string;
+  title: string;
+  message: string;
+  type: 'announcement' | 'exam' | 'timetable' | 'fee' | 'general';
+  date: Date;
+  read: boolean;
+  important: boolean;
+  actionUrl?: string;
+}
+
+export interface StudentProfile {
+  personalInfo: {
+    firstName: string;
+    lastName: string;
+    dateOfBirth: Date;
+    gender: string;
+    bloodGroup?: string;
+    allergies?: string[];
+    emergencyContact: string;
+  };
+  academicInfo: {
+    currentClass: string;
+    section: string;
+    rollNumber: number;
+    admissionNumber: string;
+    admissionDate: Date;
+  };
+  contactInfo: {
+    email?: string;
+    phone?: string;
+    address: string;
+  };
+  guardianInfo: Guardian;
 }
