@@ -1,8 +1,8 @@
-# MySchool Next.js - Free Next.js Tailwind Admin Dashboard Template
+# MySchool Next.js 
 
 MySchool is a free and open-source admin dashboard template built on **Next.js and Tailwind CSS** providing developers with everything they need to create a feature-rich and data-driven: back-end, dashboard, or admin panel solution for any sort of web project.
 
-![MySchool - Next.js Dashboard Preview](./banner.png)
+
 
 With MySchool Next.js, you get access to all the necessary dashboard UI components, elements, and pages required to build a high-quality and complete dashboard or admin panel. Whether you're building a dashboard or admin panel for a complex web application or a simple website. 
 
@@ -17,23 +17,9 @@ MySchool provides essential UI components and layouts for building feature-rich,
 - TypeScript
 - Tailwind CSS V4
 
-### Quick Links
-- [✨ Visit Website](https://MySchool.com)
-- [📄 Documentation](https://MySchool.com/docs)
-- [⬇️ Download](https://MySchool.com/download)
-- [🖌️ Figma Design File (Community Edition)](https://www.figma.com/community/file/1463141366275764364)
-- [⚡ Get PRO Version](https://MySchool.com/pricing)
 
-### Demos
-- [Free Version](https://nextjs-free-demo.MySchool.com)
-- [Pro Version](https://nextjs-demo.MySchool.com)
 
-### Other Versions
-- [HTML Version](https://github.com/MySchool/MySchool-free-tailwind-dashboard-template)
-- [React Version](https://github.com/MySchool/free-react-tailwind-admin-dashboard)
-- [Vue.js Version](https://github.com/MySchool/vue-tailwind-admin-dashboard)
 
-## Installation
 
 ### Prerequisites
 To get started with MySchool, ensure you have the following prerequisites installed and set up:

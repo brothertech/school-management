@@ -32,51 +32,62 @@ type NavItem = {
   name: string;
   icon: React.ReactNode;
   path?: string;
+  badge?: number;
   subItems?: { name: string; path: string; pro?: boolean; new?: boolean }[];
 };
 
-const navItems: NavItem[] = [
-  {
-    icon: <GridIcon />,
-    name: "Dashboard",
-    path: "/dashboard",
-  },
-  {
-    icon: <GroupIcon />,
-    name: "Students",
-    path: "/students",
-  },
-  {
-    icon: <UserCircleIcon />,
-    name: "Teachers",
-    path: "/teachers",
-  },
-  {
-    icon: <FileIcon />,
-    name: "Exams",
-    path: "/exams",
-  },
-  {
-    icon: <DollarLineIcon />,
-    name: "Fees",
-    path: "/fees",
-  },
-  {
-    icon: <BellIcon/>,
-    name: "Announcements",
-    path: "/announcements",
-  },
-  {
-    icon: <ChatIcon />,
-    name: "Messaging",
-    path: "/messaging",
-  },
-  {
-    icon: <FileIcon />,
-    name: "Question Bank",
-    path: "/question-bank",
-  },
-];
+const AppSidebar: React.FC<AppSidebarProps> = ({ groupsUnreadCount = 0 }) => {
+  const { isExpanded, isMobileOpen, isHovered, setIsHovered } = useSidebar();
+  const pathname = usePathname();
+
+  const navItems: NavItem[] = [
+    {
+      icon: <GridIcon />,
+      name: "Dashboard",
+      path: "/dashboard",
+    },
+    {
+      icon: <GroupIcon />,
+      name: "Students",
+      path: "/students",
+    },
+    {
+      icon: <UserCircleIcon />,
+      name: "Teachers",
+      path: "/teachers",
+    },
+    {
+      icon: <FileIcon />,
+      name: "Exams",
+      path: "/exams",
+    },
+    {
+      icon: <DollarLineIcon />,
+      name: "Fees",
+      path: "/fees",
+    },
+    {
+      icon: <BellIcon/>,
+      name: "Announcements",
+      path: "/announcements",
+    },
+    {
+      icon: <ChatIcon />,
+      name: "Messaging",
+      path: "/messaging",
+    },
+    {
+      icon: <GroupIcon />,
+      name: "Groups",
+      path: "/groups",
+      badge: groupsUnreadCount > 0 ? groupsUnreadCount : undefined,
+    },
+    {
+      icon: <FileIcon />,
+      name: "Question Bank",
+      path: "/question-bank",
+    },
+  ];
 
 const othersItems: NavItem[] = [
   {
@@ -111,9 +122,9 @@ const othersItems: NavItem[] = [
   },
 ];
 
-const AppSidebar: React.FC = () => {
-  const { isExpanded, isMobileOpen, isHovered, setIsHovered } = useSidebar();
-  const pathname = usePathname();
+interface AppSidebarProps {
+  groupsUnreadCount?: number;
+}
 
   const renderMenuItems = (
     navItems: NavItem[],
@@ -148,15 +159,22 @@ const AppSidebar: React.FC = () => {
                 <span className={`menu-item-text`}>{nav.name}</span>
               )}
               {(isExpanded || isHovered || isMobileOpen) && (
+              <div className="flex items-center">
+                {nav.badge !== undefined && (
+                  <span className="ml-auto mr-2 bg-red-500 text-white text-xs rounded-full px-2 py-1 min-w-[20px] text-center">
+                    {nav.badge}
+                  </span>
+                )}
                 <ChevronDownIcon
-                  className={`ml-auto w-5 h-5 transition-transform duration-200  ${
+                  className={`w-5 h-5 transition-transform duration-200  ${
                     openSubmenu?.type === menuType &&
                     openSubmenu?.index === index
                       ? "rotate-180 text-brand-500"
                       : ""
                   }`}
                 />
-              )}
+              </div>
+            )}
             </button>
           ) : (
             nav.path && (
@@ -176,7 +194,14 @@ const AppSidebar: React.FC = () => {
                   {nav.icon}
                 </span>
                 {(isExpanded || isHovered || isMobileOpen) && (
-                  <span className={`menu-item-text`}>{nav.name}</span>
+                  <div className="flex items-center justify-between flex-1">
+                    <span className={`menu-item-text`}>{nav.name}</span>
+                    {nav.badge !== undefined && (
+                      <span className="ml-2 bg-red-500 text-white text-xs rounded-full px-2 py-1 min-w-[20px] text-center">
+                        {nav.badge}
+                      </span>
+                    )}
+                  </div>
                 )}
               </Link>
             )

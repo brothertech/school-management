@@ -1,4 +1,5 @@
 import { ExamResult } from '@/types/exam';
+import { mockExams } from './examData';
 
 export const mockExamResults: ExamResult[] = [
   // Exam 1: Midterm Mathematics Exam - Grade 10 - A

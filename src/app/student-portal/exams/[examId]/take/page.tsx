@@ -5,6 +5,7 @@ import { useParams, useRouter } from "next/navigation";
 import ExamTakingInterface from "@/app/student-portal/components/ExamTakingInterface";
 import { mockExams } from "@/data/examData";
 import { Exam } from "@/types/exam";
+import Button from "@/components/ui/button/Button";
 
 export default function ExamTakingPage() {
   const params = useParams();
@@ -106,7 +107,7 @@ export default function ExamTakingPage() {
   const isExamActive = now >= startTime && now <= endTime;
 
   // Check if student has already submitted this exam
-  const submissionKey = `exam_${examId}_submissions`;
+  const submissionKey = `exam_${params.examId}_submissions`;
   const existingSubmissions = typeof window !== 'undefined' ? JSON.parse(localStorage.getItem(submissionKey) || '[]') : [];
   const hasSubmitted = existingSubmissions.length > 0;
   
