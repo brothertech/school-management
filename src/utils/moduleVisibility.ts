@@ -22,13 +22,20 @@ export interface ParsedModuleVisibility {
 }
 
 /**
- * Parse the module visibility JSON string from the API response
- * @param moduleVisibilityString - The JSON string containing module visibility settings
+ * Parse the module visibility from the API response
+ * @param moduleVisibilityData - The module visibility data (can be object or JSON string)
  * @returns Parsed module visibility object with boolean values
  */
-export function parseModuleVisibility(moduleVisibilityString: string): ParsedModuleVisibility {
+export function parseModuleVisibility(moduleVisibilityData: { [key: string]: boolean } | string): ParsedModuleVisibility {
   try {
-    const parsed = JSON.parse(moduleVisibilityString);
+    let parsed: any;
+    
+    // Handle both object and string formats
+    if (typeof moduleVisibilityData === 'string') {
+      parsed = JSON.parse(moduleVisibilityData);
+    } else {
+      parsed = moduleVisibilityData;
+    }
     
     // Ensure all expected modules are present with default false values
     const defaultVisibility: ParsedModuleVisibility = {
@@ -86,22 +93,22 @@ export function parseModuleVisibility(moduleVisibilityString: string): ParsedMod
 
 /**
  * Check if a specific module is visible for the current user
- * @param moduleVisibilityString - The JSON string containing module visibility settings
+ * @param moduleVisibilityData - The module visibility data (can be object or JSON string)
  * @param moduleName - The name of the module to check
  * @returns Boolean indicating if the module is visible
  */
-export function isModuleVisible(moduleVisibilityString: string, moduleName: keyof ParsedModuleVisibility): boolean {
-  const parsedVisibility = parseModuleVisibility(moduleVisibilityString);
+export function isModuleVisible(moduleVisibilityData: { [key: string]: boolean } | string, moduleName: keyof ParsedModuleVisibility): boolean {
+  const parsedVisibility = parseModuleVisibility(moduleVisibilityData);
   return parsedVisibility[moduleName];
 }
 
 /**
  * Get all visible modules for the current user
- * @param moduleVisibilityString - The JSON string containing module visibility settings
+ * @param moduleVisibilityData - The module visibility data (can be object or JSON string)
  * @returns Array of module names that are visible
  */
-export function getVisibleModules(moduleVisibilityString: string): (keyof ParsedModuleVisibility)[] {
-  const parsedVisibility = parseModuleVisibility(moduleVisibilityString);
+export function getVisibleModules(moduleVisibilityData: { [key: string]: boolean } | string): (keyof ParsedModuleVisibility)[] {
+  const parsedVisibility = parseModuleVisibility(moduleVisibilityData);
   return Object.entries(parsedVisibility)
     .filter(([_, isVisible]) => isVisible)
     .map(([moduleName, _]) => moduleName as keyof ParsedModuleVisibility);

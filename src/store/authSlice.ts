@@ -13,7 +13,7 @@ export interface User {
   module_visibility: {
     id: number;
     role_id: number;
-    modules: string; // JSON string containing the actual module visibility
+    modules: { [key: string]: boolean } | string; // Can be object or JSON string for backward compatibility
     created_at: string;
     updated_at: string;
   };
