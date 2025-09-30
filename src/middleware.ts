@@ -50,6 +50,7 @@ export function middleware(request: NextRequest) {
 
   // Basic auth-aware redirects using cookie token
   const authToken = request.cookies.get('auth_token')?.value;
+  console.log('authtoken is ', authToken);
 
   // If authenticated, prevent visiting auth pages
   if (authToken && pathname.startsWith('/auth')) {

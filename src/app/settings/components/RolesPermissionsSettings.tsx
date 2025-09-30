@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch, RootState } from '@/store';
 import { 
@@ -15,8 +15,8 @@ import {
   OrganizedPermission,
   AccessLevel
 } from '@/store/rolesPermissionsSlice';
-
-import { rolePermissionsApi, handleApiError } from '@/lib/api';
+import { rolePermissionsApi } from '@/lib/api';
+import { toast } from 'react-hot-toast';
 import { Modal } from '@/components/ui/modal';
 import { Table, TableHeader, TableBody, TableRow, TableCell } from '@/components/ui/table';
 
@@ -24,7 +24,7 @@ export default function RolesPermissionsSettings() {
   const dispatch = useDispatch<AppDispatch>();
   const roles = useSelector(selectRoles);
   const organizedPermissions = useSelector(selectOrganizedPermissions);
-  const isLoading = useSelector(selectLoading);
+  const loading = useSelector(selectLoading);
   const [isManageLoading, setIsManageLoading] = useState<boolean>(false);
   const error = useSelector(selectError);
   
@@ -167,7 +167,7 @@ export default function RolesPermissionsSettings() {
       } else if (error?.name === 'NetworkError' || !navigator.onLine) {
         setSaveError('Network error. Please check your connection and try again.');
       } else {
-        setSaveError(handleApiError(error) || 'An unexpected error occurred while saving permissions.');
+        setSaveError(error?.response?.data?.message || error?.message || 'An unexpected error occurred while saving permissions.');
       }
     } finally {
       setIsSaving(false);
@@ -200,7 +200,7 @@ export default function RolesPermissionsSettings() {
   };
 
   // Loading state
-  if (isLoading && safeRoles.length === 0) {
+  if (loading && safeRoles.length === 0) {
     return (
       <div className="flex items-center justify-center py-12">
         <div className="text-center">
@@ -256,10 +256,10 @@ export default function RolesPermissionsSettings() {
         </button>
          <button
           onClick={() => dispatch(fetchRolesPermissions())}
-          disabled={isLoading}
+          disabled={loading}
           className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 disabled:opacity-50 flex items-center gap-2"
         >
-          {isLoading && (
+          {loading && (
             <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
           )}
           Refresh

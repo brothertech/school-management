@@ -3,6 +3,7 @@ import React, { createContext, useContext, useEffect, ReactNode } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { RootState, AppDispatch } from '@/store';
 import { loginBegin, logout as logoutAction, clearError as clearErrorAction } from '@/store/authSlice';
+import { parseModuleVisibility, ParsedModuleVisibility } from '@/utils/moduleVisibility';
 
 export type UserRole = 'admin' | 'teacher' | 'student' | 'parent';
 
@@ -13,24 +14,11 @@ export interface User {
   roles: string[];
   primary_role: string;
   module_visibility: {
-    students: boolean;
-    teachers: boolean;
-    classes: boolean;
-    subjects: boolean;
-    exams: boolean;
-    timetable: boolean;
-    attendance: boolean;
-    fees: boolean;
-    library: boolean;
-    transport: boolean;
-    messaging: boolean;
-    groups: boolean;
-    announcements: boolean;
-    parent_portal: boolean;
-    student_portal: boolean;
-    reports: boolean;
-    cbt: boolean;
-    recruitment: boolean;
+    id: number;
+    role_id: number;
+    modules: string; // JSON string containing the actual module visibility
+    created_at: string;
+    updated_at: string;
   };
 }
 
@@ -46,6 +34,10 @@ interface AuthContextType extends AuthState {
   logout: () => Promise<void>;
   clearError: () => void;
   checkAuthStatus: () => Promise<void>;
+  // Helper function to get parsed module visibility
+  getModuleVisibility: () => ParsedModuleVisibility | null;
+  // Helper function to check if a specific module is visible
+  isModuleVisible: (moduleName: keyof ParsedModuleVisibility) => boolean;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -77,10 +69,23 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     // This function is kept for compatibility
   };
 
+  const getModuleVisibility = (): ParsedModuleVisibility | null => {
+    if (!authState.user?.module_visibility?.modules) {
+      return null;
+    }
+    return parseModuleVisibility(authState.user.module_visibility.modules);
+  };
+
+  const isModuleVisible = (moduleName: keyof ParsedModuleVisibility): boolean => {
+    const moduleVisibility = getModuleVisibility();
+    return moduleVisibility ? moduleVisibility[moduleName] : false;
+  };
+
   return (
     <AuthContext.Provider
       value={{
         user: authState.user,
+     
         isAuthenticated: authState.isAuthenticated,
         isLoading: authState.isLoading,
         error: authState.error,
@@ -88,6 +93,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         logout,
         clearError,
         checkAuthStatus,
+        getModuleVisibility,
+        isModuleVisible,
       }}
     >
       {children}

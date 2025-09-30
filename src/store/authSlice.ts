@@ -1,4 +1,7 @@
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
+import axiosClient from '../lib/axiosClient';
+import Cookies from 'js-cookie';
+
 
 // Types
 export interface User {
@@ -8,24 +11,11 @@ export interface User {
   roles: string[];
   primary_role: string;
   module_visibility: {
-    students: boolean;
-    teachers: boolean;
-    classes: boolean;
-    subjects: boolean;
-    exams: boolean;
-    timetable: boolean;
-    attendance: boolean;
-    fees: boolean;
-    library: boolean;
-    transport: boolean;
-    messaging: boolean;
-    groups: boolean;
-    announcements: boolean;
-    parent_portal: boolean;
-    student_portal: boolean;
-    reports: boolean;
-    cbt: boolean;
-    recruitment: boolean;
+    id: number;
+    role_id: number;
+    modules: string; // JSON string containing the actual module visibility
+    created_at: string;
+    updated_at: string;
   };
 }
 
@@ -78,9 +68,6 @@ const initialState: AuthState = {
   },
 };
 
-// API Base URL
-const API_BASE_URL = 'https://schoolmanger.test/api';
-
 // Async thunks
 export const loginBegin = createAsyncThunk<
   LoginResponse,
@@ -88,101 +75,66 @@ export const loginBegin = createAsyncThunk<
   { rejectValue: LoginError }
 >('auth/loginBegin', async (credentials, { rejectWithValue }) => {
   try {
-    const response = await fetch(`${API_BASE_URL}/auth/login`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json',
-      },
-      body: JSON.stringify(credentials),
-    });
-
-    const data = await response.json();
-
-    if (!response.ok) {
-      return rejectWithValue(data as LoginError);
-    }
-
-    // Persist token on the client for refreshes
-    if (typeof window !== 'undefined') {
-      try {
-        // Local storage for redux-persist to rehydrate
-        window.localStorage.setItem('auth_token', data.token);
-        // Cookie for middleware/server-side usage if needed
-        const maxAgeDays = 7; // default remember period
-        document.cookie = `auth_token=${data.token}; path=/; max-age=${maxAgeDays * 24 * 60 * 60}`;
-      } catch (e) {
-        // noop
-      }
-    }
-
-    return data as LoginResponse;
-  } catch (error) {
-    return rejectWithValue({
+    const response = await axiosClient.post('/auth/login', credentials);
+    return response.data as LoginResponse;
+  } catch (error: any) {
+    // Axios interceptor will handle 401 redirects automatically
+    const errorData = error.response?.data || {
       message: 'Network error. Please check your connection and try again.',
       errors: {},
-    });
+    };
+    return rejectWithValue(errorData as LoginError);
   }
 });
+
+export interface TwoFactorSubmission {
+  code: string;
+  method: TwoFactorMethod;
+}
 
 export const submitTwoFactorCode = createAsyncThunk<
   LoginResponse,
-  { code: string; method: TwoFactorMethod },
+  TwoFactorSubmission,
   { rejectValue: LoginError }
->('auth/submitTwoFactorCode', async ({ code, method }, { rejectWithValue }) => {
+>('auth/submitTwoFactorCode', async (submission, { rejectWithValue }) => {
   try {
-    const response = await fetch(`${API_BASE_URL}/auth/two-factor`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json',
-      },
-      body: JSON.stringify({ code, method }),
-    });
-
-    const data = await response.json();
-
-    if (!response.ok) {
-      return rejectWithValue(data as LoginError);
+     const token = Cookies.get('token');
+    if (!token) {
+      throw new Error('No token found');
     }
-
-    return data as LoginResponse;
-  } catch (error) {
-    return rejectWithValue({
+    const response = await axiosClient.post('/auth/two-factor', submission, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+        'Authorization': `Bearer ${token}`,
+      },
+    });
+    return response.data as LoginResponse;
+  } catch (error: any) {
+    // Axios interceptor will handle 401 redirects automatically
+    const errorData = error.response?.data || {
       message: 'Network error. Please check your connection and try again.',
       errors: {},
-    });
+    };
+    return rejectWithValue(errorData as LoginError);
   }
 });
 
-export const logout = createAsyncThunk<void, void>(
+export const logout = createAsyncThunk<void, void, { rejectValue: string }>(
   'auth/logout',
-  async (_, { getState }) => {
-    const state = getState() as { auth: AuthState };
-    const token = state.auth.token;
-
+  async (_, { rejectWithValue }) => {
     try {
-      if (token) {
-        await fetch(`${API_BASE_URL}/auth/logout`, {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            'Accept': 'application/json',
-          },
-        });
+      const token = Cookies.get('token');
+      if (!token) {
+        throw new Error('No token found');
       }
-      // Clear client storage
-      if (typeof window !== 'undefined') {
-        try {
-          window.localStorage.removeItem('auth_token');
-          document.cookie = 'auth_token=; path=/; max-age=0';
-        } catch (e) {
-          // noop
-        }
-      }
-    } catch (error) {
-      // Even if logout fails on server, we still proceed with logout
-      console.error('Logout error:', error);
+      await axiosClient.post('/auth/logout',
+        {headers: {'Authorization': `Bearer ${token}`}}
+      );
+      // Axios interceptor will handle token cleanup automatically
+    } catch (error: any) {
+      // Even if logout fails on server, we should clear local state
+      console.warn('Logout request failed:', error);
+      return rejectWithValue(error.response?.data?.message || 'Logout failed');
     }
   }
 );
@@ -209,6 +161,18 @@ const authSlice = createSlice({
       state.twoFactor.selectedMethod = action.payload;
     },
     resetTwoFactor: (state) => {
+      state.twoFactor = {
+        required: false,
+        methods: [],
+        selectedMethod: undefined,
+      };
+    },
+    // Handle 401 unauthorized errors
+    handleUnauthorized: (state) => {
+      state.user = null;
+      state.token = null;
+      state.isAuthenticated = false;
+      state.error = 'Session expired. Please sign in again.';
       state.twoFactor = {
         required: false,
         methods: [],
@@ -295,5 +259,5 @@ const authSlice = createSlice({
   },
 });
 
-export const { clearError, setTwoFactorMethod, resetTwoFactor } = authSlice.actions;
+export const { clearError, setTwoFactorMethod, resetTwoFactor, handleUnauthorized } = authSlice.actions;
 export const authReducer = authSlice.reducer;

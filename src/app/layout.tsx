@@ -7,6 +7,7 @@ import { AuthProvider } from '@/context/AuthContext';
 import { UnreadProvider } from '@/context/UnreadContext';
 import { SettingsProvider } from '@/context/SettingsContext';
 import { ReduxProvider } from '@/components/providers/ReduxProvider';
+import ToastProvider from '@/components/ToastProvider';
 
 const outfit = Outfit({
   subsets: ["latin"],
@@ -25,7 +26,10 @@ export default function RootLayout({
             <SettingsProvider>
               <AuthProvider>
                 <UnreadProvider>
-                  <SidebarProvider>{children}</SidebarProvider>
+                  <SidebarProvider>
+                    {children}
+                    <ToastProvider />
+                  </SidebarProvider>
                 </UnreadProvider>
               </AuthProvider>
             </SettingsProvider>

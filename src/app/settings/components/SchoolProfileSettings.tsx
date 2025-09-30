@@ -1,64 +1,192 @@
 'use client';
 
-import { useState } from 'react';
-import { SchoolProfile, UpdateSchoolProfileData } from '@/types/settings';
-import { mockSchoolProfile } from '@/data/settingsData';
+import { useState, useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { AppDispatch, RootState } from '@/store';
+import { saveSchoolSettings, fetchSchoolSettings } from '@/store/schoolSettingsSlice';
+import { SchoolSettingsPayload } from '@/lib/api';
+import DatePicker from '@/components/form/date-picker';
+import Input from '@/components/form/input/InputField';
+import Label from '@/components/form/Label';
+
+interface FormData {
+  school_name: string;
+  short_name: string;
+  school_motto: string;
+  established_year: number | '';
+  principal_name: string;
+  address: string;
+  city: string;
+  state: string;
+  country: string;
+  postal_code: string;
+  contact_email: string;
+  contact_phone: string;
+  academic_year: string;
+  academic_year_start: string;
+  academic_year_end: string;
+  is_active: boolean;
+  image?: File;
+}
 
 export default function SchoolProfileSettings() {
-  const [schoolProfile, setSchoolProfile] = useState<SchoolProfile>(mockSchoolProfile);
+  const dispatch = useDispatch<AppDispatch>();
+  const { data: schoolSettings, isLoading, isSaving, error } = useSelector(
+    (state: RootState) => state.schoolSettings
+  );
+
   const [isEditing, setIsEditing] = useState(false);
-  const [formData, setFormData] = useState<UpdateSchoolProfileData>({
-    name: mockSchoolProfile.name,
-    shortName: mockSchoolProfile.shortName,
-    logo: mockSchoolProfile.logo,
-    address: mockSchoolProfile.address,
-    city: mockSchoolProfile.city,
-    state: mockSchoolProfile.state,
-    country: mockSchoolProfile.country,
-    postalCode: mockSchoolProfile.postalCode,
-    phone: mockSchoolProfile.phone,
-    email: mockSchoolProfile.email,
-    website: mockSchoolProfile.website,
-    establishedYear: mockSchoolProfile.establishedYear,
-    principalName: mockSchoolProfile.principalName,
-    motto: mockSchoolProfile.motto,
-    isActive: mockSchoolProfile.isActive,
+  const [isCreateMode, setIsCreateMode] = useState(false);
+  const [logoPreview, setLogoPreview] = useState<string>('');
+  const [formData, setFormData] = useState<FormData>({
+    school_name: '',
+    short_name: '',
+    school_motto: '',
+    established_year: '',
+    principal_name: '',
+    address: '',
+    city: '',
+    state: '',
+    country: '',
+    postal_code: '',
+    contact_email: '',
+    contact_phone: '',
+    academic_year: '',
+    academic_year_start: '',
+    academic_year_end: '',
+    is_active: true,
   });
 
-  const handleSave = () => {
-    const updatedProfile: SchoolProfile = {
-      ...schoolProfile,
-      ...formData,
-      updatedAt: new Date(),
-    };
-    setSchoolProfile(updatedProfile);
-    setIsEditing(false);
+  // Load school settings on component mount
+  useEffect(() => {
+    dispatch(fetchSchoolSettings());
+  }, [dispatch]);
+
+  // Update form data when school settings are loaded
+  useEffect(() => {
+    if (schoolSettings) {
+      setFormData({
+        school_name: schoolSettings.schoolName || '',
+        short_name: schoolSettings.shortName || '',
+        school_motto: schoolSettings.schoolMotto || '',
+        established_year: schoolSettings.establishedYear || '',
+        principal_name: schoolSettings.principalName || '',
+        address: schoolSettings.address || '',
+        city: schoolSettings.city || '',
+        state: schoolSettings.state || '',
+        country: schoolSettings.country || '',
+        postal_code: schoolSettings.postalCode || '',
+        contact_email: schoolSettings.contactEmail || '',
+        contact_phone: schoolSettings.contactPhone || '',
+        academic_year: schoolSettings.academicYear || '',
+        academic_year_start: schoolSettings.academicYearStart?.split('T')[0] || '',
+        academic_year_end: schoolSettings.academicYearEnd?.split('T')[0] || '',
+        is_active: schoolSettings.isActive ?? true,
+      });
+      
+      // Set logo preview if available
+      if (schoolSettings.logoPath) {
+        setLogoPreview(schoolSettings.logoPath);
+      }
+      setIsCreateMode(false);
+    } else if (error && error.includes('404')) {
+      // If 404 error, switch to create mode
+      setIsCreateMode(true);
+      setIsEditing(true);
+    }
+  }, [schoolSettings, error]);
+
+  const handleSave = async () => {
+    try {
+      const payload: SchoolSettingsPayload = {
+        ...formData,
+        established_year: formData.established_year ? Number(formData.established_year) : undefined,
+        website: typeof window !== 'undefined' ? window.location.origin : '',
+      };
+      
+      await dispatch(saveSchoolSettings(payload)).unwrap();
+      setIsEditing(false);
+      setIsCreateMode(false);
+    } catch (error) {
+      // Error is handled by the Redux slice and toast
+      console.error('Failed to save school settings:', error);
+    }
   };
 
   const handleCancel = () => {
-    setFormData({
-      name: schoolProfile.name,
-      shortName: schoolProfile.shortName,
-      logo: schoolProfile.logo,
-      address: schoolProfile.address,
-      city: schoolProfile.city,
-      state: schoolProfile.state,
-      country: schoolProfile.country,
-      postalCode: schoolProfile.postalCode,
-      phone: schoolProfile.phone,
-      email: schoolProfile.email,
-      website: schoolProfile.website,
-      establishedYear: schoolProfile.establishedYear,
-      principalName: schoolProfile.principalName,
-      motto: schoolProfile.motto,
-      isActive: schoolProfile.isActive,
-    });
+    if (schoolSettings) {
+      setFormData({
+        school_name: schoolSettings.schoolName || '',
+        short_name: schoolSettings.shortName || '',
+        school_motto: schoolSettings.schoolMotto || '',
+        established_year: schoolSettings.establishedYear || '',
+        principal_name: schoolSettings.principalName || '',
+        address: schoolSettings.address || '',
+        city: schoolSettings.city || '',
+        state: schoolSettings.state || '',
+        country: schoolSettings.country || '',
+        postal_code: schoolSettings.postalCode || '',
+        contact_email: schoolSettings.contactEmail || '',
+        contact_phone: schoolSettings.contactPhone || '',
+        academic_year: schoolSettings.academicYear || '',
+        academic_year_start: schoolSettings.academicYearStart?.split('T')[0] || '',
+        academic_year_end: schoolSettings.academicYearEnd?.split('T')[0] || '',
+        is_active: schoolSettings.isActive ?? true,
+      });
+      
+      // Reset logo preview
+      if (schoolSettings.logoPath) {
+        setLogoPreview(schoolSettings.logoPath);
+      } else {
+        setLogoPreview('');
+      }
+      
+      // Clear file input
+      const fileInput = document.getElementById('logo-upload') as HTMLInputElement;
+      if (fileInput) {
+        fileInput.value = '';
+      }
+    }
     setIsEditing(false);
   };
 
-  const handleInputChange = (field: keyof UpdateSchoolProfileData, value: any) => {
+  const handleInputChange = (field: keyof FormData, value: any) => {
     setFormData(prev => ({ ...prev, [field]: value }));
   };
+
+  const handleLogoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      // Validate file type
+      if (!file.type.startsWith('image/')) {
+        alert('Please select a valid image file');
+        return;
+      }
+      
+      // Validate file size (max 5MB)
+      if (file.size > 5 * 1024 * 1024) {
+        alert('File size must be less than 5MB');
+        return;
+      }
+      
+      setFormData(prev => ({ ...prev, image: file }));
+      
+      // Create preview
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        setLogoPreview(e.target?.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  if (isLoading) {
+    return (
+      <div className="flex justify-center items-center h-64">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-brand-600 dark:border-brand-400"></div>
+      </div>
+    );
+  }
 
   return (
     <div>
@@ -75,13 +203,15 @@ export default function SchoolProfileSettings() {
           <div className="flex gap-2">
             <button
               onClick={handleSave}
-              className="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700"
+              disabled={isSaving}
+              className="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 disabled:opacity-50"
             >
-              Save Changes
+              {isSaving ? 'Saving...' : 'Save Changes'}
             </button>
             <button
               onClick={handleCancel}
-              className="bg-gray-500 text-white px-4 py-2 rounded-md hover:bg-gray-600"
+              disabled={isSaving}
+              className="bg-gray-500 text-white px-4 py-2 rounded-md hover:bg-gray-600 disabled:opacity-50"
             >
               Cancel
             </button>
@@ -89,70 +219,99 @@ export default function SchoolProfileSettings() {
         )}
       </div>
 
-      <div className="bg-white rounded-lg border border-gray-200 p-6">
+      {error && (
+        <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-md">
+          <p className="text-red-600 text-sm">{error}</p>
+        </div>
+      )}
+
+      <div className="bg-white rounded-lg border border-gray-200 p-6 dark:bg-gray-800 dark:border-gray-700">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {/* School Logo */}
+          <div className="md:col-span-2">
+            <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-4">School Logo</h3>
+            <div className="flex items-center space-x-4">
+              <div className="w-20 h-20 bg-gray-200 dark:bg-gray-700 rounded-lg flex items-center justify-center overflow-hidden">
+                {logoPreview ? (
+                  <img 
+                    src={logoPreview} 
+                    alt="School Logo" 
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <span className="text-sm text-gray-500 dark:text-gray-400">No Logo</span>
+                )}
+              </div>
+              {isEditing && (
+                <div>
+                  <Label htmlFor="logo-upload">Upload Logo</Label>
+                  <input
+                    id="logo-upload"
+                    type="file"
+                    accept="image/*"
+                    onChange={handleLogoChange}
+                    className="block w-full text-sm text-gray-500 dark:text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-brand-50 file:text-brand-700 hover:file:bg-brand-100 dark:file:bg-brand-900/20 dark:file:text-brand-400 dark:hover:file:bg-brand-900/30"
+                  />
+                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Max size: 5MB. Supported formats: JPG, PNG, GIF</p>
+                </div>
+              )}
+            </div>
+          </div>
+
           {/* School Information */}
           <div className="md:col-span-2">
-            <h3 className="text-lg font-medium text-gray-900 mb-4">School Information</h3>
+            <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-4">School Information</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  School Name *
-                </label>
-                <input
+                <Label htmlFor="school_name">School Name *</Label>
+                <Input
                   type="text"
-                  value={formData.name || ''}
-                  onChange={(e) => handleInputChange('name', e.target.value)}
+                  id="school_name"
+                  defaultValue={formData.school_name}
+                  onChange={(e) => handleInputChange('school_name', e.target.value)}
                   disabled={!isEditing}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md disabled:bg-gray-100"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Short Name
-                </label>
-                <input
+                <Label htmlFor="short_name">Short Name</Label>
+                <Input
                   type="text"
-                  value={formData.shortName || ''}
-                  onChange={(e) => handleInputChange('shortName', e.target.value)}
+                  id="short_name"
+                  defaultValue={formData.short_name}
+                  onChange={(e) => handleInputChange('short_name', e.target.value)}
                   disabled={!isEditing}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md disabled:bg-gray-100"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Established Year
-                </label>
-                <input
+                <Label htmlFor="established_year">Established Year</Label>
+                <Input
                   type="number"
-                  value={formData.establishedYear || ''}
-                  onChange={(e) => handleInputChange('establishedYear', parseInt(e.target.value))}
+                  id="established_year"
+                  defaultValue={formData.established_year?.toString()}
+                  onChange={(e) => handleInputChange('established_year', e.target.value ? parseInt(e.target.value) : '')}
                   disabled={!isEditing}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md disabled:bg-gray-100"
+                  min="1800"
+                  max={new Date().getFullYear().toString()}
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Principal Name
-                </label>
-                <input
+                <Label htmlFor="principal_name">Principal Name</Label>
+                <Input
                   type="text"
-                  value={formData.principalName || ''}
-                  onChange={(e) => handleInputChange('principalName', e.target.value)}
+                  id="principal_name"
+                  defaultValue={formData.principal_name}
+                  onChange={(e) => handleInputChange('principal_name', e.target.value)}
                   disabled={!isEditing}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md disabled:bg-gray-100"
                 />
               </div>
               <div className="md:col-span-2">
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Motto
-                </label>
-                <input
+                <Label htmlFor="school_motto">School Motto</Label>
+                <Input
                   type="text"
-                  value={formData.motto || ''}
-                  onChange={(e) => handleInputChange('motto', e.target.value)}
+                  id="school_motto"
+                  defaultValue={formData.school_motto}
+                  onChange={(e) => handleInputChange('school_motto', e.target.value)}
                   disabled={!isEditing}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md disabled:bg-gray-100"
                 />
               </div>
             </div>
@@ -160,134 +319,142 @@ export default function SchoolProfileSettings() {
 
           {/* Contact Information */}
           <div className="md:col-span-2">
-            <h3 className="text-lg font-medium text-gray-900 mb-4">Contact Information</h3>
+            <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-4">Contact Information</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Email *
-                </label>
-                <input
+                <Label htmlFor="contact_email">Contact Email</Label>
+                <Input
                   type="email"
-                  value={formData.email || ''}
-                  onChange={(e) => handleInputChange('email', e.target.value)}
+                  id="contact_email"
+                  defaultValue={formData.contact_email}
+                  onChange={(e) => handleInputChange('contact_email', e.target.value)}
                   disabled={!isEditing}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md disabled:bg-gray-100"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Phone *
-                </label>
-                <input
+                <Label htmlFor="contact_phone">Contact Phone</Label>
+                <Input
                   type="tel"
-                  value={formData.phone || ''}
-                  onChange={(e) => handleInputChange('phone', e.target.value)}
+                  id="contact_phone"
+                  defaultValue={formData.contact_phone}
+                  onChange={(e) => handleInputChange('contact_phone', e.target.value)}
                   disabled={!isEditing}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md disabled:bg-gray-100"
                 />
               </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Website
-                </label>
-                <input
+              {/* Website field - always show with auto-detected value */}
+              <div className="md:col-span-2">
+                <Label htmlFor="website">Website (Auto-detected)</Label>
+                <Input
                   type="url"
-                  value={formData.website || ''}
-                  onChange={(e) => handleInputChange('website', e.target.value)}
-                  disabled={!isEditing}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md disabled:bg-gray-100"
+                  id="website"
+                  defaultValue={typeof window !== 'undefined' ? window.location.origin : ''}
+                  disabled
                 />
+                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">This field is automatically detected from the current site URL</p>
               </div>
             </div>
           </div>
 
           {/* Address Information */}
           <div className="md:col-span-2">
-            <h3 className="text-lg font-medium text-gray-900 mb-4">Address Information</h3>
+            <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-4">Address Information</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="md:col-span-2">
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Address *
-                </label>
-                <input
+                <Label htmlFor="address">Address</Label>
+                <Input
                   type="text"
-                  value={formData.address || ''}
+                  id="address"
+                  defaultValue={formData.address}
                   onChange={(e) => handleInputChange('address', e.target.value)}
                   disabled={!isEditing}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md disabled:bg-gray-100"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  City *
-                </label>
-                <input
+                <Label htmlFor="city">City</Label>
+                <Input
                   type="text"
-                  value={formData.city || ''}
+                  id="city"
+                  defaultValue={formData.city}
                   onChange={(e) => handleInputChange('city', e.target.value)}
                   disabled={!isEditing}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md disabled:bg-gray-100"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  State *
-                </label>
-                <input
+                <Label htmlFor="state">State</Label>
+                <Input
                   type="text"
-                  value={formData.state || ''}
+                  id="state"
+                  defaultValue={formData.state}
                   onChange={(e) => handleInputChange('state', e.target.value)}
                   disabled={!isEditing}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md disabled:bg-gray-100"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Country *
-                </label>
-                <input
+                <Label htmlFor="country">Country</Label>
+                <Input
                   type="text"
-                  value={formData.country || ''}
+                  id="country"
+                  defaultValue={formData.country}
                   onChange={(e) => handleInputChange('country', e.target.value)}
                   disabled={!isEditing}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md disabled:bg-gray-100"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Postal Code *
-                </label>
-                <input
+                <Label htmlFor="postal_code">Postal Code</Label>
+                <Input
                   type="text"
-                  value={formData.postalCode || ''}
-                  onChange={(e) => handleInputChange('postalCode', e.target.value)}
+                  id="postal_code"
+                  defaultValue={formData.postal_code}
+                  onChange={(e) => handleInputChange('postal_code', e.target.value)}
                   disabled={!isEditing}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md disabled:bg-gray-100"
                 />
               </div>
             </div>
           </div>
 
-          {/* Logo Upload */}
+          {/* Academic Year Information */}
           <div className="md:col-span-2">
-            <h3 className="text-lg font-medium text-gray-900 mb-4">School Logo</h3>
-            <div className="flex items-center space-x-4">
-              {formData.logo && (
-                <div className="w-16 h-16 bg-gray-200 rounded-lg flex items-center justify-center">
-                  <span className="text-sm text-gray-500">Logo</span>
-                </div>
-              )}
+            <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-4">Academic Year Information</h3>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Logo URL
-                </label>
-                <input
-                  type="url"
-                  value={formData.logo || ''}
-                  onChange={(e) => handleInputChange('logo', e.target.value)}
+                <Label htmlFor="academic_year">Academic Year</Label>
+                <Input
+                  type="text"
+                  id="academic_year"
+                  defaultValue={formData.academic_year}
+                  onChange={(e) => handleInputChange('academic_year', e.target.value)}
                   disabled={!isEditing}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md disabled:bg-gray-100"
-                  placeholder="https://example.com/logo.png"
+                  placeholder="e.g., 2025-2026"
+                />
+              </div>
+              <div>
+                <DatePicker
+                  id="academic_year_start"
+                  label="Academic Year Start"
+                  defaultDate={formData.academic_year_start}
+                  onChange={(selectedDates) => {
+                    if (selectedDates.length > 0) {
+                      const date = selectedDates[0];
+                      const formattedDate = date.toISOString().split('T')[0];
+                      handleInputChange('academic_year_start', formattedDate);
+                    }
+                  }}
+                  placeholder="Select start date"
+                />
+              </div>
+              <div>
+                <DatePicker
+                  id="academic_year_end"
+                  label="Academic Year End"
+                  defaultDate={formData.academic_year_end}
+                  onChange={(selectedDates) => {
+                    if (selectedDates.length > 0) {
+                      const date = selectedDates[0];
+                      const formattedDate = date.toISOString().split('T')[0];
+                      handleInputChange('academic_year_end', formattedDate);
+                    }
+                  }}
+                  placeholder="Select end date"
                 />
               </div>
             </div>
@@ -295,25 +462,28 @@ export default function SchoolProfileSettings() {
 
           {/* Status */}
           <div className="md:col-span-2">
-            <h3 className="text-lg font-medium text-gray-900 mb-4">Status</h3>
-            <label className="flex items-center">
+            <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-4">Status</h3>
+            <div className="flex items-center space-x-3">
               <input
                 type="checkbox"
-                checked={formData.isActive}
-                onChange={(e) => handleInputChange('isActive', e.target.checked)}
+                id="is_active"
+                checked={formData.is_active}
+                onChange={(e) => handleInputChange('is_active', e.target.checked)}
                 disabled={!isEditing}
-                className="mr-2"
+                className="h-4 w-4 text-brand-600 focus:ring-brand-500 border-gray-300 rounded dark:border-gray-600 dark:bg-gray-700 dark:focus:ring-brand-600"
               />
-              Active School Profile
-            </label>
+              <Label htmlFor="is_active" className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                School is Active
+              </Label>
+            </div>
           </div>
         </div>
 
-        {!isEditing && (
+        {!isEditing && schoolSettings && (
           <div className="mt-6 p-4 bg-blue-50 rounded-lg">
             <h4 className="font-medium text-blue-900 mb-2">Current School Profile</h4>
             <p className="text-sm text-blue-700">
-              Last updated: {schoolProfile.updatedAt.toLocaleDateString()}
+              Last updated: {new Date(schoolSettings.updatedAt).toLocaleDateString()}
             </p>
           </div>
         )}

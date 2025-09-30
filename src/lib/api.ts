@@ -25,24 +25,11 @@ export interface LoginResponse {
     roles: string[];
     primary_role: string;
     module_visibility: {
-      students: boolean;
-      teachers: boolean;
-      classes: boolean;
-      subjects: boolean;
-      exams: boolean;
-      timetable: boolean;
-      attendance: boolean;
-      fees: boolean;
-      library: boolean;
-      transport: boolean;
-      messaging: boolean;
-      groups: boolean;
-      announcements: boolean;
-      parent_portal: boolean;
-      student_portal: boolean;
-      reports: boolean;
-      cbt: boolean;
-      recruitment: boolean;
+      id: number;
+      role_id: number;
+      modules: string; // JSON string containing the actual module visibility
+      created_at: string;
+      updated_at: string;
     };
   };
 }
@@ -172,6 +159,8 @@ export const authApi = {
 };
 
 // Role Permissions API functions
+import axiosClient from './axiosClient';
+
 export const rolePermissionsApi = {
   // Update role permissions
   async updateRolePermissions(roleId: number, permissions: Array<{
@@ -181,11 +170,111 @@ export const rolePermissionsApi = {
     update: string;
     delete: string;
   }>): Promise<{ success: boolean; message: string }> {
-    return apiRequest<{ success: boolean; message: string }>(`/admin/role-permissions/organized/${roleId}`, {
-      method: 'PUT',
-      body: JSON.stringify({ permissions }),
-    });
+    try {
+      const response = await axiosClient.put(`/admin/role-permissions/organized/${roleId}`, {
+        permissions
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Error updating role permissions:', error);
+      throw error;
+    }
+  }
+};
+
+// School Settings API
+export interface SchoolSettingsPayload {
+  school_name: string;
+  short_name?: string;
+  school_motto?: string;
+  established_year?: number;
+  principal_name?: string;
+  address?: string;
+  city?: string;
+  state?: string;
+  country?: string;
+  postal_code?: string;
+  contact_email?: string;
+  contact_phone?: string;
+  website?: string;
+  academic_year?: string;
+  academic_year_start?: string;
+  academic_year_end?: string;
+  is_active?: boolean;
+  image?: File;
+}
+
+export interface SchoolSettingsData {
+  id: number;
+  schoolName: string;
+  shortName?: string;
+  schoolMotto?: string;
+  establishedYear?: number;
+  principalName?: string;
+  address?: string;
+  city?: string;
+  state?: string;
+  country?: string;
+  postalCode?: string;
+  contactEmail?: string;
+  contactPhone?: string;
+  website?: string;
+  academicYear?: string;
+  academicYearStart?: string;
+  academicYearEnd?: string;
+  isActive: boolean;
+  updatedBy?: number;
+  logoPath?: string;
+  updatedAt: string;
+  createdAt: string;
+}
+
+export interface SchoolSettingsResponse {
+  data: SchoolSettingsData;
+}
+
+export const schoolSettingsApi = {
+  // Save school settings
+  async saveSchoolSettings(data: SchoolSettingsPayload): Promise<SchoolSettingsResponse> {
+    try {
+      const formData = new FormData();
+      
+      // Append all fields to FormData
+      Object.entries(data).forEach(([key, value]) => {
+        if (value !== undefined && value !== null && value !== '') {
+          if (key === 'image' && value instanceof File) {
+            formData.append('image', value);
+          } else if (typeof value === 'boolean') {
+            // Send boolean values as actual booleans, not strings
+            formData.append(key, value ? '1' : '0');
+          } else {
+            formData.append(key, String(value));
+          }
+        }
+      });
+
+      const response = await axiosClient.post('/admin/settings', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Error saving school settings:', error);
+      throw error;
+    }
   },
+
+  // Get school settings
+  async getSchoolSettings(): Promise<SchoolSettingsResponse> {
+    try {
+      const response = await axiosClient.get('/admin/settings');
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching school settings:', error);
+      throw error;
+    }
+  }
 };
 
 // Utility functions for error handling

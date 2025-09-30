@@ -1,6 +1,8 @@
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
+import axiosClient from '../lib/axiosClient';
+import Cookies from 'js-cookie';
 
-const API_BASE_URL = 'https://schoolmanger.test/api';
+
 
 // Define access level type
 export type AccessLevel = 'all' | 'owned' | 'none';
@@ -53,35 +55,22 @@ export const fetchRolesPermissions = createAsyncThunk<
   RolesPermissionsResponse,
   void,
   { rejectValue: string }
->('rolesPermissions/fetchRolesPermissions', async (_, { rejectWithValue, getState }) => {
+>('rolesPermissions/fetchRolesPermissions', async (_, { rejectWithValue }) => {
   try {
-    // Get token from auth state
-    const state = getState() as any;
-    const token = state.auth.token;
-
-    const headers: Record<string, string> = {
-      'Content-Type': 'application/json',
-      'Accept': 'application/json',
-    };
-
-    if (token) {
-      headers['Authorization'] = `Bearer ${token}`;
+    const token = Cookies.get('token');
+console.log('token is ', token);
+    if (!token) {
+      // return rejectWithValue('No token found');
     }
-
-    const response = await fetch(`${API_BASE_URL}/admin/role-permissions`, {
-      method: 'GET',
-      headers,
+    const response = await axiosClient.get('/admin/role-permissions', {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
     });
-
-    if (!response.ok) {
-      const errorData = await response.json();
-      return rejectWithValue(errorData.message || 'Failed to fetch roles and permissions');
-    }
-
-    const data = await response.json();
-    return data as RolesPermissionsResponse;
-  } catch (error) {
-    return rejectWithValue('Network error. Please check your connection and try again.');
+    return response.data as RolesPermissionsResponse;
+  } catch (error: any) {
+    // The axios interceptor will handle 401 redirects automatically
+    return rejectWithValue(error.response?.data?.message || 'Failed to fetch roles and permissions');
   }
 });
 

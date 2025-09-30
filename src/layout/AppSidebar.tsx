@@ -48,7 +48,7 @@ const AppSidebar: React.FC<AppSidebarProps> = ({ groupsUnreadCount = 0 }) => {
   const { isExpanded, isMobileOpen, isHovered, setIsHovered } = useSidebar();
   const pathname = usePathname();
   const { t } = useTranslation();
-  const { user } = useAuth();
+  const { user, isModuleVisible } = useAuth();
 
   // Function to filter navigation items based on user's module visibility
   const filterNavItems = (items: NavItem[]): NavItem[] => {
@@ -56,7 +56,7 @@ const AppSidebar: React.FC<AppSidebarProps> = ({ groupsUnreadCount = 0 }) => {
 
     return items.filter((item) => {
       // Map navigation items to module visibility keys
-      const moduleMap: Record<string, keyof typeof user.module_visibility> = {
+      const moduleMap: Record<string, string> = {
         'Students': 'students',
         'Teachers': 'teachers',
         'Classes': 'classes',
@@ -88,8 +88,8 @@ const AppSidebar: React.FC<AppSidebarProps> = ({ groupsUnreadCount = 0 }) => {
       // If no module mapping exists, show the item (for custom items)
       if (!moduleKey) return true;
 
-      // Check if user has access to this module
-      return user.module_visibility[moduleKey] === true;
+      // Check if user has access to this module using the AuthContext helper
+      return isModuleVisible(moduleKey as any);
     });
   };
 
