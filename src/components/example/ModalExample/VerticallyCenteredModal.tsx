@@ -4,9 +4,11 @@ import ComponentCard from "../../common/ComponentCard";
 import Button from "../../ui/button/Button";
 import { Modal } from "../../ui/modal";
 import { useModal } from "@/hooks/useModal";
+import { useTranslation } from "@/hooks/useTranslation";
 
 export default function VerticallyCenteredModal() {
   const { isOpen, openModal, closeModal } = useModal();
+  const { t } = useTranslation();
   const handleSave = () => {
     // Handle save logic here
     console.log("Saving changes...");
@@ -15,7 +17,7 @@ export default function VerticallyCenteredModal() {
   return (
     <ComponentCard title="Vertically Centered Modal">
       <Button size="sm" onClick={openModal}>
-        Open Modal
+        {t('common.open_modal')}
       </Button>
       <Modal
         isOpen={isOpen}
@@ -25,7 +27,7 @@ export default function VerticallyCenteredModal() {
       >
         <div className="text-center">
           <h4 className="mb-2 text-2xl font-semibold text-gray-800 dark:text-white/90 sm:text-title-sm">
-            All Done! Success Confirmed
+            {t('modal.success_confirmed')}
           </h4>
           <p className="text-sm leading-6 text-gray-500 dark:text-gray-400">
             Lorem ipsum dolor sit amet, consectetur adipiscing elit.
@@ -34,10 +36,10 @@ export default function VerticallyCenteredModal() {
 
           <div className="flex items-center justify-center w-full gap-3 mt-8">
             <Button size="sm" variant="outline" onClick={closeModal}>
-              Close
+              {t('common.close')}
             </Button>
             <Button size="sm" onClick={handleSave}>
-              Save Changes
+              {t('common.save_changes')}
             </Button>
           </div>
         </div>

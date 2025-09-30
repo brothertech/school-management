@@ -6,6 +6,7 @@ import Input from '../input/InputField';
 import Select from '../Select';
 import { ChevronDownIcon, EyeCloseIcon, EyeIcon, TimeIcon } from '../../../icons';
 import DatePicker from '@/components/form/date-picker';
+import { useTranslation } from "@/hooks/useTranslation";
 
 export default function DefaultInputs() {
   const [showPassword, setShowPassword] = useState(false);

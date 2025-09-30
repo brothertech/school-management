@@ -2,6 +2,7 @@ import React from "react";
 import { StudentPortalData } from "@/types/student";
 import { mockExams } from "@/data/examData";
 import ExamList from "./ExamList";
+import { useAuth } from "@/context/AuthContext";
 
 interface StudentDashboardProps {
   data: StudentPortalData;
@@ -9,6 +10,7 @@ interface StudentDashboardProps {
 
 export default function StudentDashboard({ data }: StudentDashboardProps) {
   const { student, timetable, upcomingExams, attendanceSummary } = data;
+  const { user } = useAuth();
 
   return (
     <div className="space-y-6">
@@ -177,43 +179,45 @@ export default function StudentDashboard({ data }: StudentDashboardProps) {
         </button>
       </div>
 
-      {/* Exam Navigation */}
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
-        <h2 className="text-xl font-semibold text-gray-800 dark:text-white mb-4">
-          Exam Center
-        </h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <a
-            href="/student-portal/exams/1/instructions"
-            className="flex flex-col items-center justify-center p-6 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-700 hover:bg-blue-100 dark:hover:bg-blue-900/30 transition-colors"
-          >
-            <svg className="w-12 h-12 text-blue-600 mb-3" fill="currentColor" viewBox="0 0 20 20">
-              <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
-            </svg>
-            <h3 className="font-semibold text-blue-800 dark:text-blue-300 mb-2">
-              View Exam Instructions
-            </h3>
-            <p className="text-sm text-blue-600 dark:text-blue-400 text-center">
-              Read instructions and guidelines before starting your exam
-            </p>
-          </a>
-          
-          <a
-            href="/student-portal/exams/1/take"
-            className="flex flex-col items-center justify-center p-6 bg-green-50 dark:bg-green-900/20 rounded-lg border border-green-200 dark:border-green-700 hover:bg-green-100 dark:hover:bg-green-900/30 transition-colors"
-          >
-            <svg className="w-12 h-12 text-green-600 mb-3" fill="currentColor" viewBox="0 0 20 20">
-              <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-            </svg>
-            <h3 className="font-semibold text-green-800 dark:text-green-300 mb-2">
-              Take Exam
-            </h3>
-            <p className="text-sm text-green-600 dark:text-green-400 text-center">
-              Start your exam and submit your answers online
-            </p>
-          </a>
+      {/* Exam Navigation - Only show if CBT module is enabled */}
+      {user?.module_visibility?.cbt && (
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
+          <h2 className="text-xl font-semibold text-gray-800 dark:text-white mb-4">
+            Exam Center
+          </h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <a
+              href="/student-portal/exams/1/instructions"
+              className="flex flex-col items-center justify-center p-6 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-700 hover:bg-blue-100 dark:hover:bg-blue-900/30 transition-colors"
+            >
+              <svg className="w-12 h-12 text-blue-600 mb-3" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
+              </svg>
+              <h3 className="font-semibold text-blue-800 dark:text-blue-300 mb-2">
+                View Exam Instructions
+              </h3>
+              <p className="text-sm text-blue-600 dark:text-blue-400 text-center">
+                Read instructions and guidelines before starting your exam
+              </p>
+            </a>
+            
+            <a
+              href="/student-portal/exams/1/take"
+              className="flex flex-col items-center justify-center p-6 bg-green-50 dark:bg-green-900/20 rounded-lg border border-green-200 dark:border-green-700 hover:bg-green-100 dark:hover:bg-green-900/30 transition-colors"
+            >
+              <svg className="w-12 h-12 text-green-600 mb-3" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+              </svg>
+              <h3 className="font-semibold text-green-800 dark:text-green-300 mb-2">
+                Take Exam
+              </h3>
+              <p className="text-sm text-green-600 dark:text-green-400 text-center">
+                Start your exam and submit your answers online
+              </p>
+            </a>
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Available Exams */}
       <ExamList exams={mockExams} />

@@ -2,6 +2,7 @@
 import React, { useState } from "react";
 import ComponentCard from "../../common/ComponentCard";
 import Checkbox from "../input/Checkbox";
+import { useTranslation } from "@/hooks/useTranslation";
 
 export default function CheckboxComponents() {
   const [isChecked, setIsChecked] = useState(false);

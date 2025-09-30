@@ -1,11 +1,15 @@
 import React from 'react';
 import { User } from '@/context/AuthContext';
+import { useSettings } from '@/context/SettingsContext';
 
 interface TeacherDashboardProps {
   user: User;
 }
 
 export default function TeacherDashboard({ user }: TeacherDashboardProps) {
+  const { settings } = useSettings();
+  const widgets = settings.dashboardWidgets.teacher;
+
   return (
     <div className="grid grid-cols-12 gap-4 md:gap-6">
       <div className="col-span-12">
@@ -14,6 +18,30 @@ export default function TeacherDashboard({ user }: TeacherDashboardProps) {
           Welcome, Professor {user.lastName}! Manage your classes and students.
         </p>
       </div>
+
+      {widgets.clockIn && (
+        <div className="col-span-12 md:col-span-6">
+          <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow">
+            <div className="flex items-center justify-between">
+              <h3 className="text-lg font-semibold mb-2">Clock In</h3>
+              <button className="px-4 py-2 bg-red-500 text-white rounded-md">Clock In</button>
+            </div>
+            <p className="text-sm text-gray-500">Mark your attendance for today.</p>
+          </div>
+        </div>
+      )}
+
+      {widgets.birthdays && (
+        <div className="col-span-12 md:col-span-6">
+          <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow">
+            <h3 className="text-lg font-semibold mb-4">Staff Birthdays</h3>
+            <ul className="space-y-2 text-sm text-gray-700 dark:text-gray-300">
+              <li>Jane Doe - HR - Today 🎉</li>
+              <li>Mark Lee - Maths - Tomorrow</li>
+            </ul>
+          </div>
+        </div>
+      )}
 
       <div className="col-span-12 md:col-span-6 lg:col-span-3">
         <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow">

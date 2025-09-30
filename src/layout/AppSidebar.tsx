@@ -26,6 +26,14 @@ import {
   ChatIcon,
 } from "../icons/index";
 import { BellIcon } from "lucide-react";
+import { useTranslation } from '@/hooks/useTranslation';
+import { useAuth } from "@/context/AuthContext";
+
+
+// Ensure props type is declared before use
+interface AppSidebarProps {
+  groupsUnreadCount?: number;
+}
 
 
 type NavItem = {
@@ -39,92 +47,209 @@ type NavItem = {
 const AppSidebar: React.FC<AppSidebarProps> = ({ groupsUnreadCount = 0 }) => {
   const { isExpanded, isMobileOpen, isHovered, setIsHovered } = useSidebar();
   const pathname = usePathname();
+  const { t } = useTranslation();
+  const { user } = useAuth();
 
-  const navItems: NavItem[] = [
-    {
-      icon: <GridIcon />,
-      name: "Dashboard",
-      path: "/dashboard",
-    },
+  // Function to filter navigation items based on user's module visibility
+  const filterNavItems = (items: NavItem[]): NavItem[] => {
+    if (!user?.module_visibility) return items;
+
+    return items.filter((item) => {
+      // Map navigation items to module visibility keys
+      const moduleMap: Record<string, keyof typeof user.module_visibility> = {
+        'Students': 'students',
+        'Teachers': 'teachers',
+        'Classes': 'classes',
+        'Subjects': 'subjects',
+        'Exams': 'exams',
+        'Timetable': 'timetable',
+        'Attendance': 'attendance',
+        'Fees': 'fees',
+        'Library': 'library',
+        'Transport': 'transport',
+        'Messaging': 'messaging',
+        'Groups': 'groups',
+        'Announcements': 'announcements',
+        'Parent Portal': 'parent_portal',
+        'Student Portal': 'student_portal',
+        'Reports': 'reports',
+        'CBT': 'cbt',
+        'Recruitment': 'recruitment',
+        'Question Bank': 'cbt', // Question Bank is part of CBT module
+      };
+
+      const moduleKey = moduleMap[item.name];
+      
+      // Always show Dashboard and Settings
+      if (item.name === 'Dashboard' || item.name === 'Private Dashboard' || item.name === 'Settings') {
+        return true;
+      }
+
+      // If no module mapping exists, show the item (for custom items)
+      if (!moduleKey) return true;
+
+      // Check if user has access to this module
+      return user.module_visibility[moduleKey] === true;
+    });
+  };
+
+  const navItems: NavItem[] = filterNavItems([
+    // Super Admin gets both dashboards
+    ...(user?.roles?.includes('Super Admin')
+      ? [
+        {
+          icon: <GridIcon />,
+          name: 'Dashboard',
+          subItems: [
+            { name: 'Private Dashboard', path: "/" },
+            { name: 'Advanced Dashboard', path: "/advanced-dashboard" },
+          ],
+        },
+      ]
+      : []),
+    
+    // Admin-only dashboard (explicit Admin Dashboard)
+    ...(user?.primary_role === 'Admin' && !user?.roles?.includes('Super Admin')
+      ? [
+        {
+          icon: <GridIcon />,
+          name: 'Dashboard',
+          subItems: [
+            { name: 'Private Dashboard', path: "/" },
+            { name: 'Admin Dashboard', path: "/admin-dashboard" },
+          ],
+        },
+      ]
+      : []),
+    
+    // Private (role-based) dashboard for everyone else
+    ...(user?.primary_role === 'Student' ? [
+      {
+        icon: <GridIcon />,
+        name: 'Private Dashboard',
+        path: "/students",
+      }
+    ] : []),
+    // Private (role-based) dashboard for everyone else
+    ...(user?.primary_role === 'Teacher' ? [
+      {
+        icon: <GridIcon />,
+        name: 'Private Dashboard',
+        path: "/",
+      }
+    ] : []),
+    ...(user?.primary_role === 'Parent' ? [
+      {
+        icon: <GridIcon />,
+        name: 'Private Dashboard',
+        path: "/parent-portal",
+      }
+    ] : []),
+    
     {
       icon: <GroupIcon />,
-      name: "Students",
+      name: 'Students',
       path: "/students",
     },
     {
       icon: <UserCircleIcon />,
-      name: "Teachers",
+      name: 'Teachers',
       path: "/teachers",
     },
     {
       icon: <FileIcon />,
-      name: "Exams",
+      name: 'Classes',
+      path: "/classes",
+    },
+    {
+      icon: <DocsIcon />,
+      name: 'Subjects',
+      path: "/subjects",
+    },
+    {
+      icon: <FileIcon />,
+      name: 'Exams',
       path: "/exams",
     },
     {
+      icon: <CalenderIcon />,
+      name: 'Timetable',
+      path: "/timetable",
+    },
+    {
+      icon: <ListIcon />,
+      name: 'Attendance',
+      path: "/attendance",
+    },
+    {
       icon: <DollarLineIcon />,
-      name: "Fees",
+      name: 'Fees',
       path: "/fees",
     },
     {
       icon: <BellIcon/>,
-      name: "Announcements",
+      name: 'Announcements',
       path: "/announcements",
     },
     {
       icon: <ChatIcon />,
-      name: "Messaging",
+      name: 'Messaging',
       path: "/messaging",
     },
     {
       icon: <GroupIcon />,
-      name: "Groups",
+      name: 'Groups',
       path: "/groups",
       badge: groupsUnreadCount > 0 ? groupsUnreadCount : undefined,
     },
     {
       icon: <FileIcon />,
-      name: "Question Bank",
+      name: 'Question Bank',
       path: "/question-bank",
     },
-  ];
+    {
+      icon: <UserCircleIcon />,
+      name: 'Recruitment',
+      subItems: [
+        { name: 'Job Openings', path: "/recruitment/job-openings" },
+        { name: 'Candidates', path: "/recruitment/candidates" },
+        { name: 'Analytics', path: "/recruitment/analytics" },  
+      ],
+    },
+  ]);
 
-const othersItems: NavItem[] = [
+const othersItems: NavItem[] = filterNavItems([
   {
     icon: <DocsIcon />,
-    name: "Library",
+    name: 'Library',
     path: "/library",
   },
   {
     icon: <FolderIcon />,
-    name: "Transport",
+    name: 'Transport',
     path: "/transport",
   },
   {
     icon: <PieChartIcon />,
-    name: "Reports",
+    name: 'Reports',
     path: "/reports",
   },
-  {
-    icon: <UserCircleIcon />,
-    name: "Parent Portal",
-    path: "/parent-portal",
-  },
+  // {
+  //   icon: <UserCircleIcon />,
+  //   name: 'Parent Portal',
+  //   path: "/parent-portal",
+  // },
   {
     icon: <UserIcon />,
-    name: "Student Portal",
+    name: 'Student Portal',
     path: "/student-portal",
   },
   {
     icon: <PencilIcon />,
-    name: "Settings",
+    name: 'Settings',
     path: "/settings",
   },
-];
-
-interface AppSidebarProps {
-  groupsUnreadCount?: number;
-}
+]);
 
   const renderMenuItems = (
     navItems: NavItem[],

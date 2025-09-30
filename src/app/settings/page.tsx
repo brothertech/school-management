@@ -5,9 +5,10 @@ import GradeScaleSettings from './components/GradeScaleSettings';
 import AcademicSessionSettings from './components/AcademicSessionSettings';
 import TermSettings from './components/TermSettings';
 import SchoolProfileSettings from './components/SchoolProfileSettings';
+import RolesPermissionsSettings from './components/RolesPermissionsSettings';
 
 
-type SettingsTab = 'academic-sessions' | 'terms' | 'grading' | 'school-profile';
+type SettingsTab = 'academic-sessions' | 'terms' | 'grading' | 'school-profile' | 'roles-permissions';
 
 export default function SettingsPage() {
   const [activeTab, setActiveTab] = useState<SettingsTab>('academic-sessions');
@@ -17,6 +18,7 @@ export default function SettingsPage() {
     { id: 'terms' as SettingsTab, label: 'Terms/Semesters', icon: '📚' },
     { id: 'grading' as SettingsTab, label: 'Grading Scale', icon: '📊' },
     { id: 'school-profile' as SettingsTab, label: 'School Profile', icon: '🏫' },
+    { id: 'roles-permissions' as SettingsTab, label: 'Roles & Permissions', icon: '🔑' }, // NEW TAB
   ];
 
   const renderContent = () => {
@@ -29,6 +31,8 @@ export default function SettingsPage() {
         return <GradeScaleSettings />;
       case 'school-profile':
         return <SchoolProfileSettings />;
+      case 'roles-permissions':
+        return <RolesPermissionsSettings />;
       default:
         return <AcademicSessionSettings />;
     }

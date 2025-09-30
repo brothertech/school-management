@@ -2,8 +2,10 @@
 import React from "react";
 import ComponentCard from "../../common/ComponentCard";
 import Switch from "../switch/Switch";
+import { useTranslation } from "@/hooks/useTranslation";
 
 export default function ToggleSwitch() {
+  const { t } = useTranslation();
   const handleSwitchChange = (checked: boolean) => {
     console.log("Switch is now:", checked ? "ON" : "OFF");
   };

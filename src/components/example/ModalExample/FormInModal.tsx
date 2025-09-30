@@ -6,9 +6,11 @@ import { Modal } from "../../ui/modal";
 import Label from "../../form/Label";
 import Input from "../../form/input/InputField";
 import { useModal } from "@/hooks/useModal";
+import { useTranslation } from "@/hooks/useTranslation";
 
 export default function FormInModal() {
   const { isOpen, openModal, closeModal } = useModal();
+  const { t } = useTranslation();
   const handleSave = () => {
     // Handle save logic here
     console.log("Saving changes...");
@@ -17,7 +19,7 @@ export default function FormInModal() {
   return (
     <ComponentCard title="Form In Modal">
       <Button size="sm" onClick={openModal}>
-        Open Modal
+        {t('common.open_modal')}
       </Button>
       <Modal
         isOpen={isOpen}
@@ -26,42 +28,42 @@ export default function FormInModal() {
       >
         <form className="">
           <h4 className="mb-6 text-lg font-medium text-gray-800 dark:text-white/90">
-            Personal Information
+            {t('form.personal_information')}
           </h4>
 
           <div className="grid grid-cols-1 gap-x-6 gap-y-5 sm:grid-cols-2">
             <div className="col-span-1">
-              <Label>First Name</Label>
-              <Input type="text" placeholder="Emirhan" />
+              <Label>{t('form.first_name')}</Label>
+              <Input type="text" placeholder={t('form.first_name_placeholder')} />
             </div>
 
             <div className="col-span-1">
-              <Label>Last Name</Label>
-              <Input type="text" placeholder="Boruch" />
+              <Label>{t('form.last_name')}</Label>
+              <Input type="text" placeholder={t('form.last_name_placeholder')} />
             </div>
 
             <div className="col-span-1">
-              <Label>Last Name</Label>
-              <Input type="email" placeholder="emirhanboruch55@gmail.com" />
+              <Label>{t('form.email')}</Label>
+              <Input type="email" placeholder={t('form.email_placeholder')} />
             </div>
 
             <div className="col-span-1">
-              <Label>Phone</Label>
-              <Input type="text" placeholder="+09 363 398 46" />
+              <Label>{t('form.phone')}</Label>
+              <Input type="text" placeholder={t('form.phone_placeholder')} />
             </div>
 
             <div className="col-span-1 sm:col-span-2">
-              <Label>Bio</Label>
-              <Input type="text" placeholder="Team Manager" />
+              <Label>{t('form.bio')}</Label>
+              <Input type="text" placeholder={t('form.bio_placeholder')} />
             </div>
           </div>
 
           <div className="flex items-center justify-end w-full gap-3 mt-6">
             <Button size="sm" variant="outline" onClick={closeModal}>
-              Close
+              {t('common.close')}
             </Button>
             <Button size="sm" onClick={handleSave}>
-              Save Changes
+              {t('common.save_changes')}
             </Button>
           </div>
         </form>

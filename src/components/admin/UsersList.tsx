@@ -3,6 +3,8 @@
 import React, { useState } from 'react';
 import { User } from '@/types/user';
 import Button from '@/components/ui/button/Button';
+import { useTranslation } from '@/hooks/useTranslation';
+
 
 interface UsersListProps {
   users: User[];
@@ -13,6 +15,7 @@ interface UsersListProps {
 }
 
 export default function UsersList({ users, onEdit, onDelete, onCreate, onViewProfile }: UsersListProps) {
+  const { t } = useTranslation();
   const [filterRole, setFilterRole] = useState<string>('all');
   const [searchTerm, setSearchTerm] = useState('');
 
@@ -44,9 +47,9 @@ export default function UsersList({ users, onEdit, onDelete, onCreate, onViewPro
     <div className="bg-white dark:bg-gray-800 rounded-lg shadow">
       <div className="p-6 border-b border-gray-200 dark:border-gray-700">
         <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6">
-          <h2 className="text-xl font-semibold mb-4 md:mb-0">User Management</h2>
+          <h2 className="text-xl font-semibold mb-4 md:mb-0">{t('user.management')}</h2>
           <Button onClick={onCreate} size="sm">
-            Create User
+            {t('user.createUser')}
           </Button>
         </div>
 
@@ -54,7 +57,7 @@ export default function UsersList({ users, onEdit, onDelete, onCreate, onViewPro
           <div className="flex-1">
             <input
               type="text"
-              placeholder="Search users..."
+              placeholder={t('user.searchUsers')}
               className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
@@ -66,11 +69,11 @@ export default function UsersList({ users, onEdit, onDelete, onCreate, onViewPro
               value={filterRole}
               onChange={(e) => setFilterRole(e.target.value)}
             >
-              <option value="all">All Roles</option>
-              <option value="admin">Admin</option>
-              <option value="teacher">Teacher</option>
-              <option value="student">Student</option>
-              <option value="parent">Parent</option>
+              <option value="all">{t('user.allRoles')}</option>
+              <option value="admin">{t('user.admin')}</option>
+              <option value="teacher">{t('user.teacher')}</option>
+              <option value="student">{t('user.student')}</option>
+              <option value="parent">{t('user.parent')}</option>
             </select>
           </div>
         </div>
@@ -81,22 +84,22 @@ export default function UsersList({ users, onEdit, onDelete, onCreate, onViewPro
           <thead className="bg-gray-50 dark:bg-gray-700">
             <tr>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                User
+                {t('common.user')}
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                Email
+                {t('auth.email')}
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                Role
+                {t('user.role')}
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                Contact
+                {t('user.contact')}
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                Created
+                {t('user.created')}
               </th>
               <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                Actions
+                {t('user.actions')}
               </th>
             </tr>
           </thead>
@@ -139,19 +142,19 @@ export default function UsersList({ users, onEdit, onDelete, onCreate, onViewPro
                       onClick={() => onViewProfile(user)}
                       className="text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300"
                     >
-                      View
+                      {t('common.view')}
                     </button>
                     <button
                       onClick={() => onEdit(user)}
                       className="text-green-600 hover:text-green-900 dark:text-green-400 dark:hover:text-green-300"
                     >
-                      Edit
+                      {t('common.edit')}
                     </button>
                     <button
                       onClick={() => onDelete(user.id)}
                       className="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300"
                     >
-                      Delete
+                      {t('common.delete')}
                     </button>
                   </div>
                 </td>
@@ -163,7 +166,7 @@ export default function UsersList({ users, onEdit, onDelete, onCreate, onViewPro
 
       {filteredUsers.length === 0 && (
         <div className="p-8 text-center">
-          <p className="text-gray-500 dark:text-gray-400">No users found</p>
+          <p className="text-gray-500 dark:text-gray-400">{t('user.noUsers')}</p>
         </div>
       )}
     </div>

@@ -4,12 +4,14 @@ import ComponentCard from "../../common/ComponentCard";
 
 import { Modal } from "../../ui/modal";
 import { useModal } from "@/hooks/useModal";
+import { useTranslation } from "@/hooks/useTranslation";
 
 export default function ModalBasedAlerts() {
   const successModal = useModal();
   const infoModal = useModal();
   const warningModal = useModal();
   const errorModal = useModal();
+  const { t } = useTranslation();
   return (
     <ComponentCard title="Modal Based Alerts">
       <div className="flex flex-wrap items-center gap-3">
@@ -17,25 +19,25 @@ export default function ModalBasedAlerts() {
           onClick={successModal.openModal}
           className="px-4 py-3 text-sm font-medium text-white rounded-lg bg-success-500 shadow-theme-xs hover:bg-success-600"
         >
-          Success Alert
+          {t('alert.success')}
         </button>
         <button
           onClick={infoModal.openModal}
           className="px-4 py-3 text-sm font-medium text-white rounded-lg bg-blue-light-500 shadow-theme-xs hover:bg-blue-light-600"
         >
-          Info Alert
+          {t('alert.info')}
         </button>
         <button
           onClick={warningModal.openModal}
           className="px-4 py-3 text-sm font-medium text-white rounded-lg bg-warning-500 shadow-theme-xs hover:bg-warning-600"
         >
-          Warning Alert
+          {t('alert.warning')}
         </button>
         <button
           onClick={errorModal.openModal}
           className="px-4 py-3 text-sm font-medium text-white rounded-lg bg-error-500 shadow-theme-xs hover:bg-error-600"
         >
-          Danger Alert
+          {t('alert.danger')}
         </button>
       </div>
       {/* Success Modal */}
@@ -80,7 +82,7 @@ export default function ModalBasedAlerts() {
             </span>
           </div>
           <h4 className="mb-2 text-2xl font-semibold text-gray-800 dark:text-white/90 sm:text-title-sm">
-            Well Done!
+            {t('alert.well_done')}
           </h4>
           <p className="text-sm leading-6 text-gray-500 dark:text-gray-400">
             Lorem ipsum dolor sit amet consectetur. Feugiat ipsum libero tempor
@@ -92,7 +94,7 @@ export default function ModalBasedAlerts() {
               type="button"
               className="flex justify-center w-full px-4 py-3 text-sm font-medium text-white rounded-lg bg-success-500 shadow-theme-xs hover:bg-success-600 sm:w-auto"
             >
-              Okay, Got It
+              {t('common.okay_got_it')}
             </button>
           </div>
         </div>
@@ -140,7 +142,7 @@ export default function ModalBasedAlerts() {
           </div>
 
           <h4 className="mb-2 text-2xl font-semibold text-gray-800 dark:text-white/90 sm:text-title-sm">
-            Information Alert!
+            {t('alert.information')}
           </h4>
           <p className="text-sm leading-6 text-gray-500 dark:text-gray-400">
             Lorem ipsum dolor sit amet consectetur. Feugiat ipsum libero tempor
@@ -152,7 +154,7 @@ export default function ModalBasedAlerts() {
               type="button"
               className="flex justify-center w-full px-4 py-3 text-sm font-medium text-white rounded-lg bg-blue-light-500 shadow-theme-xs hover:bg-blue-light-600 sm:w-auto"
             >
-              Okay, Got It
+              {t('common.okay_got_it')}
             </button>
           </div>
         </div>
@@ -200,7 +202,7 @@ export default function ModalBasedAlerts() {
           </div>
 
           <h4 className="mb-2 text-2xl font-semibold text-gray-800 dark:text-white/90 sm:text-title-sm">
-            Warning Alert!
+            {t('alert.warning_alert')}
           </h4>
           <p className="text-sm leading-6 text-gray-500 dark:text-gray-400">
             Lorem ipsum dolor sit amet consectetur. Feugiat ipsum libero tempor
@@ -212,7 +214,7 @@ export default function ModalBasedAlerts() {
               type="button"
               className="flex justify-center w-full px-4 py-3 text-sm font-medium text-white rounded-lg bg-warning-500 shadow-theme-xs hover:bg-warning-600 sm:w-auto"
             >
-              Okay, Got It
+              {t('common.okay_got_it')}
             </button>
           </div>
         </div>
@@ -260,7 +262,7 @@ export default function ModalBasedAlerts() {
           </div>
 
           <h4 className="mb-2 text-2xl font-semibold text-gray-800 dark:text-white/90 sm:text-title-sm">
-            Danger Alert!
+            {t('alert.danger_alert')}
           </h4>
           <p className="text-sm leading-6 text-gray-500 dark:text-gray-400">
             Lorem ipsum dolor sit amet consectetur. Feugiat ipsum libero tempor
@@ -270,9 +272,9 @@ export default function ModalBasedAlerts() {
           <div className="flex items-center justify-center w-full gap-3 mt-7">
             <button
               type="button"
-              className="flex justify-center w-full px-4 py-3 text-sm font-medium text-white rounded-lg bg-error-500 shadow-theme-xs hover:bg-error-600 sm:w-auto"
+              className="flex justify-center w-full px-4 py-3 text-sm font-medium text-white rounded-lg bg-danger-500 shadow-theme-xs hover:bg-danger-600 sm:w-auto"
             >
-              Okay, Got It
+              {t('common.okay_got_it')}
             </button>
           </div>
         </div>
