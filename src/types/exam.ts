@@ -8,6 +8,7 @@ export interface Exam {
   duration: number; // in minutes
   allowedAttempts: number;
   randomizeQuestions: boolean;
+  passMark?: number; // percentage required to pass (0-100)
   instructions?: string;
   status: 'upcoming' | 'active' | 'closed';
   createdAt: Date;
@@ -23,6 +24,7 @@ export interface CreateExamData {
   duration: number;
   allowedAttempts: number;
   randomizeQuestions: boolean;
+  passMark?: number;
   instructions?: string;
 }
 
@@ -35,6 +37,7 @@ export interface UpdateExamData {
   duration?: number;
   allowedAttempts?: number;
   randomizeQuestions?: boolean;
+  passMark?: number;
   instructions?: string;
   status?: 'upcoming' | 'active' | 'closed';
 }

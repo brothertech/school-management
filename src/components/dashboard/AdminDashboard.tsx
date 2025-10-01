@@ -4,6 +4,7 @@ import AdminNavigation from '@/components/admin/AdminNavigation';
 import UserManagement from '@/components/admin/UserManagement';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useSettings } from '@/context/SettingsContext';
+import UserRegistrationSettings from '@/app/settings/components/UserRegistrationSettings';
 
 
 interface AdminDashboardProps {
@@ -21,7 +22,7 @@ export default function AdminDashboard({ user }: AdminDashboardProps) {
   const renderContent = () => {
     switch (activeTab) {
       case 'users':
-        return <UserManagement />;
+        return <UserRegistrationSettings />;
       case 'dashboard':
       default:
         return (

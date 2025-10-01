@@ -3,6 +3,7 @@ import { persistStore, persistReducer } from 'redux-persist';
 import { authReducer } from './authSlice';
 import { rolesPermissionsReducer } from './rolesPermissionsSlice';
 import { default as schoolSettingsReducer } from './schoolSettingsSlice';
+import { examReducer } from './examSlice';
 
 // Dynamic import for storage to handle SSR
 let storage: any;
@@ -22,6 +23,7 @@ const rootReducer = combineReducers({
   auth: authReducer,
   rolesPermissions: rolesPermissionsReducer,
   schoolSettings: schoolSettingsReducer,
+  exam: examReducer,
 });
 
 // Persist configuration (persist both auth and rolesPermissions slices)

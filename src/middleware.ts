@@ -49,8 +49,32 @@ export function middleware(request: NextRequest) {
   }
 
   // Basic auth-aware redirects using cookie token
-  const authToken = request.cookies.get('auth_token')?.value;
+  const authToken = request.cookies.get('token')?.value;
   console.log('authtoken is ', authToken);
+
+  // Define protected routes that require authentication
+  const protectedRoutes = [
+    '/',
+    '/admin-dashboard',
+    '/advanced-dashboard',
+    '/settings',
+    '/students',
+    '/teachers',
+    '/parent-portal',
+    '/teacher-portal',
+    '/student-portal'
+  ];
+
+  // Check if current path is a protected route
+  const isProtectedRoute = protectedRoutes.some(route => 
+    pathname === route || pathname.startsWith(route + '/')
+  );
+
+  // If accessing protected route without auth token, redirect to signin
+  if (isProtectedRoute && !authToken) {
+    const signinUrl = new URL('/auth/signin', request.url);
+    return NextResponse.redirect(signinUrl);
+  }
 
   // If authenticated, prevent visiting auth pages
   if (authToken && pathname.startsWith('/auth')) {

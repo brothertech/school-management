@@ -247,7 +247,14 @@ const othersItems: NavItem[] = filterNavItems([
   {
     icon: <PencilIcon />,
     name: 'Settings',
-    path: "/settings",
+    subItems: user?.roles?.includes('Super Admin') || user?.primary_role === 'Admin'
+      ? [
+          { name: 'System Settings', path: "/settings" },
+          { name: 'User Settings', path: "/user-settings" },
+        ]
+      : [
+          { name: 'User Settings', path: "/user-settings" },
+        ],
   },
 ]);
 
